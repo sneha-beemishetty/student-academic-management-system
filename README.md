@@ -79,24 +79,22 @@ database/database.sql Database schema and sample records
 All data operations use parameterized MySQL statements. Admin APIs require an authenticated Express session. Bootstrap and fonts load from public CDNs, so their styling requires an internet connection.
 # Deploying a public demo to Render
 
-This project uses MySQL. Render's Blueprint can configure the Node web service,
-but the MySQL server is a separate paid private service with a persistent disk.
-The included `database/render-demo.sql` contains only the app schema and
-fabricated `example.edu` sample records. It does not contain an admin password
-or any data from your local MySQL database.
+This project uses MySQL. The included `database/render-demo.sql` contains only
+the app schema and fabricated `example.edu` sample records. It does not contain
+an admin password or any data from your local MySQL database.
 
 ## Prepare a hosted demo
 
 1. Create a **private** GitHub repository and upload the project files. Do not
    upload `.env`, `node_modules`, or student data exports. The generated project
    report is excluded by `.gitignore`.
-2. In Render, create a private MySQL service following
-   [Render's MySQL guide](https://render.com/docs/deploy-mysql). It requires a
-   persistent disk. Use a new empty database and unique credentials.
+2. Create a **MySQL-compatible TiDB Cloud Starter** instance using its free
+   quota. Keep the spending limit at zero so the instance does not switch to
+   paid usage. TiDB requires TLS for public connections.
 3. Connect the private repository to Render and deploy its `render.yaml`
-   Blueprint. When prompted for environment values, set `DB_HOST`, `DB_PORT`,
-   `DB_USER`, `DB_PASSWORD`, and `DB_NAME` to the private MySQL service's
-   internal connection values. Set `ADMIN_USERNAME` and a unique
+   Blueprint. When prompted for environment values, set `DB_HOST`, `DB_USER`,
+   and `DB_PASSWORD` using TiDB's **Connect** dialog. Use `DB_PORT=4000`,
+   `DB_NAME=test`, and leave `DB_SSL=true`. Set `ADMIN_USERNAME` and a unique
    `ADMIN_PASSWORD` of at least 16 characters. Render generates
    `SESSION_SECRET` for the Blueprint service. Leave the web service publicly
    reachable; the dashboard itself still requires login.
@@ -108,10 +106,13 @@ or any data from your local MySQL database.
 5. Sign in using the admin credentials you set in Render. Do not import your
    local database into the public demo.
 
-## Cost and operation
+## Free-tier limits and operation
 
-The web service can use Render's free plan, which may sleep after inactivity.
-Render MySQL is paid and its persistent disk is billed separately; check the
-current [Render MySQL pricing](https://render.com/hosting/mysql) before
-creating it. You manage MySQL maintenance and backups. Keep the GitHub
-repository private, and do not put database credentials in source files.
+Render's free web service sleeps after 15 minutes without traffic and may take
+about a minute to wake. TiDB Cloud Starter currently includes 5 GiB of row
+storage, 5 GiB of columnar storage, and 50 million request units per month.
+When a free quota is reached, new connections can be denied until it resets.
+After the web service deploys, restrict TiDB's public endpoint firewall to the
+outbound IP ranges shown in the Render service's **Connect → Outbound** tab.
+Keep the GitHub repository private, and do not put database credentials in
+source files.
