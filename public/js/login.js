@@ -1,0 +1,2 @@
+const form=document.getElementById('login-form');
+form.addEventListener('submit',async e=>{e.preventDefault();const alertBox=document.getElementById('login-alert');alertBox.innerHTML='';try{const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.fromEntries(new FormData(form)))});const data=await r.json();if(!r.ok)throw new Error(data.error);location.href='/dashboard';}catch(err){alertBox.innerHTML=`<div class="alert alert-danger">${err.message}</div>`;}});

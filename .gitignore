@@ -1,0 +1,6 @@
+node_modules/
+.env*
+!.env.example
+npm-debug.log*
+Student_Academic_Management_System_PBL_Report.docx
+.report_work/
